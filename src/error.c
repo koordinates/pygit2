@@ -30,6 +30,7 @@
 extern PyObject *GitError;
 extern PyObject *AlreadyExistsError;
 extern PyObject *InvalidSpecError;
+extern PyObject *ObjectMissingError;
 
 PyObject *
 Error_type(int type)
@@ -40,6 +41,10 @@ Error_type(int type)
         /* Input does not exist in the scope searched. */
         case GIT_ENOTFOUND:
             return PyExc_KeyError;
+
+        /* Object is missing but promised. */
+        case GIT_EMISSING:
+            return ObjectMissingError;
 
         /* A reference with this name already exists */
         case GIT_EEXISTS:
@@ -105,9 +110,12 @@ Error_set_exc(PyObject* exception)
 PyObject *
 Error_set_str(int err, const char *str)
 {
+    /* KeyError classes expect the arg to be the missing key. */
     if (err == GIT_ENOTFOUND) {
-        /* KeyError expects the arg to be the missing key. */
         PyErr_SetString(PyExc_KeyError, str);
+        return NULL;
+    } else if (err == GIT_EMISSING) {
+        PyErr_SetString(ObjectMissingError, str);
         return NULL;
     }
 

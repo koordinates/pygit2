@@ -59,7 +59,7 @@ Object__load(Object *self)
     if (self->obj == NULL) {
         int err = git_tree_entry_to_object(&self->obj, self->repo->repo, self->entry);
         if (err < 0) {
-            Error_set(err);
+            Error_set_oid(err, git_tree_entry_id(self->entry), GIT_OID_HEXSZ);
             return NULL;
         }
     }

@@ -39,6 +39,7 @@
 PyObject *GitError;
 PyObject *AlreadyExistsError;
 PyObject *InvalidSpecError;
+PyObject *ObjectMissingError;
 
 extern PyTypeObject RepositoryType;
 extern PyTypeObject OdbType;
@@ -333,6 +334,7 @@ PyInit__pygit2(void)
     ADD_EXC(m, GitError, NULL);
     ADD_EXC(m, AlreadyExistsError, PyExc_ValueError);
     ADD_EXC(m, InvalidSpecError, PyExc_ValueError);
+    ADD_EXC(m, ObjectMissingError, PyExc_KeyError);
 
     /* Repository */
     INIT_TYPE(RepositoryType, NULL, PyType_GenericNew)
