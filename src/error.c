@@ -86,8 +86,25 @@ PyObject *
 Error_set(int err)
 {
     assert(err < 0);
+    PyObject* type = Error_type(err);
 
-    return Error_set_exc(Error_type(err));
+    const git_error* error = git_error_last();
+    char* message = (error == NULL) ?
+            "(No error information given)" : error->message;
+    int subcode = (error == NULL) ? 0 : error->subcode;
+
+    PyObject* instance = PyObject_Call(
+            type,
+            PyTuple_Pack(1, PyUnicode_FromString(message)),
+            NULL);
+
+    if (instance == NULL)
+        return NULL;
+    PyObject_SetAttrString(instance, "code", PyLong_FromLong(err));
+    PyObject_SetAttrString(instance, "subcode", PyLong_FromLong(subcode));
+    PyErr_SetObject(type, instance);
+
+    return NULL;
 }
 
 PyObject *
