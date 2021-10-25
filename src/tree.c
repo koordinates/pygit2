@@ -168,11 +168,6 @@ tree_getentry_by_path(const git_tree *tree, Repository *repo, PyObject *py_path)
     int err = git_tree_entry_bypath(&entry, tree, path);
     free(path);
 
-    if (err == GIT_ENOTFOUND) {
-        PyErr_SetObject(PyExc_KeyError, py_path);
-        return NULL;
-    }
-
     if (err < 0)
         return Error_set(err);
 
