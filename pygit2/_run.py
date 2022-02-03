@@ -65,6 +65,7 @@ h_files = [
     'proxy.h',
     'indexer.h',
     'pack.h',
+    'mempack.h',
     'remote.h',
     'clone.h',
     'common.h',
@@ -91,12 +92,14 @@ for h_file in h_files:
 
 C_HEADER_SRC = '\n'.join(h_source)
 
+PREAMBLE = "\n".join(["#include <git2.h>", "#include <git2/sys/mempack.h>"])
+
 # ffi
 _, libgit2_kw = get_libgit2_paths()
 ffi = FFI()
 ffi.set_source(
     "pygit2._libgit2",
-    "#include <git2.h>", # preamble
+    PREAMBLE,
     **libgit2_kw
 )
 ffi.cdef(C_HEADER_SRC)

@@ -26,6 +26,9 @@ Built-in OdbBackend implementations
 .. autoclass:: pygit2.OdbBackendPack
    :members:
 
+.. autoclass:: pygit2.OdbBackendMemPack
+   :members:
+
 The RefdbBackend class
 ===================================
 
