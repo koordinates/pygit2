@@ -72,6 +72,10 @@ typedef struct {
 
 typedef struct {
     OdbBackend super;
+} OdbBackendMemPack;
+
+typedef struct {
+    OdbBackend super;
 } OdbBackendLoose;
 
 typedef struct {

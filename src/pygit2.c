@@ -44,6 +44,7 @@ extern PyTypeObject RepositoryType;
 extern PyTypeObject OdbType;
 extern PyTypeObject OdbBackendType;
 extern PyTypeObject OdbBackendPackType;
+extern PyTypeObject OdbBackendMemPackType;
 extern PyTypeObject OdbBackendLooseType;
 extern PyTypeObject OidType;
 extern PyTypeObject ObjectType;
@@ -347,6 +348,8 @@ PyInit__pygit2(void)
     ADD_TYPE(m, OdbBackend)
     INIT_TYPE(OdbBackendPackType, &OdbBackendType, PyType_GenericNew)
     ADD_TYPE(m, OdbBackendPack)
+    INIT_TYPE(OdbBackendMemPackType, &OdbBackendType, PyType_GenericNew)
+    ADD_TYPE(m, OdbBackendMemPack)
     INIT_TYPE(OdbBackendLooseType, &OdbBackendType, PyType_GenericNew)
     ADD_TYPE(m, OdbBackendLoose)
 
