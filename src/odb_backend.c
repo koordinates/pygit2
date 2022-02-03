@@ -41,7 +41,11 @@
 #include "utils.h"
 #include <git2/odb_backend.h>
 #include <git2/sys/alloc.h>
+#include <git2/sys/mempack.h>
 #include <git2/sys/odb_backend.h>
+
+extern PyTypeObject RepositoryType;
+
 
 /*
  * pgit_odb_backend_t is a container for the state associated with a custom
@@ -646,6 +650,103 @@ PyTypeObject OdbBackendPackType = {
     0,                                         /* tp_descr_set      */
     0,                                         /* tp_dictoffset     */
     (initproc)OdbBackendPack_init,             /* tp_init           */
+    0,                                         /* tp_alloc          */
+    0,                                         /* tp_new            */
+};
+
+PyDoc_STRVAR(OdbBackendMemPack__doc__, "In-memory object database backend for buffering packfiles.");
+
+int
+OdbBackendMemPack_init(OdbBackendMemPack *self, PyObject *args, PyObject *kwds)
+{
+    if (kwds && PyDict_Size(kwds) > 0) {
+        PyErr_SetString(PyExc_TypeError, "OdbBackendMemPack takes no keyword arguments");
+        return -1;
+    }
+
+    int flags = GIT_MEMPACK_DEFAULT;
+    if (!PyArg_ParseTuple(args, "|i", &flags))
+        return -1;
+
+    int err = git_mempack_new_ext(&self->super.odb_backend, flags);
+    if (err) {
+        Error_set(err);
+        return -1;
+    }
+
+    return 0;
+}
+
+PyDoc_STRVAR(OdbBackendMemPack_dump_to_pack_dir__doc__,
+    "dump_to_pack_dir(repository) -> pack_filename\n"
+    "\n"
+    "Writes the contents of the MemPack to a packfile in the pack directory of the given repository.\n"
+    "Returns the filename of the packfile written.");
+
+PyObject *
+OdbBackendMemPack_dump_to_pack_dir(OdbBackendMemPack *self, PyObject* repo)
+{
+    git_buf filename = {NULL};
+    PyObject *py_filename;
+
+    if (!PyObject_IsInstance((PyObject *)repo, (PyObject *)&RepositoryType)) {
+        PyErr_SetString(PyExc_TypeError, "dump_to_pack_dir expects an instance of pygit2.Repository");
+        return NULL;
+    }
+
+    int err = git_mempack_dump_to_pack_dir(&filename, ((Repository *)repo)->repo, self->super.odb_backend);
+    if (err < 0) {
+        Error_set(err);
+        return NULL;
+    }
+
+    py_filename = to_unicode_n(filename.ptr, filename.size, NULL, NULL);
+    git_buf_dispose(&filename);
+    return py_filename;
+}
+
+PyMethodDef OdbBackendMemPack_methods[] = {
+    METHOD(OdbBackendMemPack, dump_to_pack_dir, METH_O),
+    {NULL}
+};
+
+PyTypeObject OdbBackendMemPackType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pygit2.OdbBackendMemPack",               /* tp_name           */
+    sizeof(OdbBackendMemPack),                 /* tp_basicsize      */
+    0,                                         /* tp_itemsize       */
+    0,                                         /* tp_dealloc        */
+    0,                                         /* tp_print          */
+    0,                                         /* tp_getattr        */
+    0,                                         /* tp_setattr        */
+    0,                                         /* tp_compare        */
+    0,                                         /* tp_repr           */
+    0,                                         /* tp_as_number      */
+    0,                                         /* tp_as_sequence    */
+    0,                                         /* tp_as_mapping     */
+    0,                                         /* tp_hash           */
+    0,                                         /* tp_call           */
+    0,                                         /* tp_str            */
+    0,                                         /* tp_getattro       */
+    0,                                         /* tp_setattro       */
+    0,                                         /* tp_as_buffer      */
+    Py_TPFLAGS_DEFAULT,                        /* tp_flags          */
+    OdbBackendMemPack__doc__,                  /* tp_doc            */
+    0,                                         /* tp_traverse       */
+    0,                                         /* tp_clear          */
+    0,                                         /* tp_richcompare    */
+    0,                                         /* tp_weaklistoffset */
+    0,                                         /* tp_iter           */
+    0,                                         /* tp_iternext       */
+    OdbBackendMemPack_methods,                 /* tp_methods        */
+    0,                                         /* tp_members        */
+    0,                                         /* tp_getset         */
+    &OdbBackendType,                           /* tp_base           */
+    0,                                         /* tp_dict           */
+    0,                                         /* tp_descr_get      */
+    0,                                         /* tp_descr_set      */
+    0,                                         /* tp_dictoffset     */
+    (initproc)OdbBackendMemPack_init,          /* tp_init           */
     0,                                         /* tp_alloc          */
     0,                                         /* tp_new            */
 };
