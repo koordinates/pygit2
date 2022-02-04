@@ -22,6 +22,11 @@ typedef struct git_index_entry {
 	const char *path;
 } git_index_entry;
 
+typedef enum {
+    GIT_INDEX_WRITE_TREE_VALIDATE_OIDS = (1u << 0),
+    GIT_INDEX_WRITE_TREE_DEFAULT = GIT_INDEX_WRITE_TREE_VALIDATE_OIDS,
+} git_index_write_tree_t;
+
 typedef int (*git_index_matched_path_cb)(
 	const char *path, const char *matched_pathspec, void *payload);
 
@@ -36,8 +41,8 @@ int git_index_add(git_index *index, const git_index_entry *source_entry);
 int git_index_remove(git_index *index, const char *path, int stage);
 int git_index_read_tree(git_index *index, const git_tree *tree);
 int git_index_clear(git_index *index);
-int git_index_write_tree(git_oid *out, git_index *index);
-int git_index_write_tree_to(git_oid *out, git_index *index, git_repository *repo);
+int git_index_write_tree_ext(git_oid *out, git_index *index, unsigned int flags);
+int git_index_write_tree_to_ext(git_oid *out, git_index *index, git_repository *repo, unsigned int flags);
 const git_index_entry * git_index_get_bypath(
 	git_index *index, const char *path, int stage);
 const git_index_entry * git_index_get_byindex(
