@@ -147,7 +147,7 @@ class Index:
         err = C.git_index_read_tree(self._index, tree_cptr[0])
         check_error(err)
 
-    def write_tree(self, repo=None):
+    def write_tree(self, repo=None, flags=C.GIT_INDEX_WRITE_TREE_DEFAULT):
         """Create a tree out of the Index. Return the <Oid> object of the
         written tree.
 
@@ -163,9 +163,9 @@ class Index:
         repo = repo or self._repo
 
         if repo:
-            err = C.git_index_write_tree_to(coid, self._index, repo._repo)
+            err = C.git_index_write_tree_to_ext(coid, self._index, repo._repo, flags)
         else:
-            err = C.git_index_write_tree(coid, self._index)
+            err = C.git_index_write_tree_ext(coid, self._index, flags)
 
         check_error(err)
         return Oid(raw=bytes(ffi.buffer(coid)[:]))
