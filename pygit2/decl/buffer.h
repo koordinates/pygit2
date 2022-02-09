@@ -1,6 +1,6 @@
 typedef struct {
 	char   *ptr;
-	size_t asize, size;
+	size_t reserved, size;
 } git_buf;
 
 void git_buf_dispose(git_buf *buffer);
