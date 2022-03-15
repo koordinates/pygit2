@@ -291,12 +291,70 @@ Odb_add_backend(Odb *self, PyObject *args)
 }
 
 
+PyDoc_STRVAR(Odb_refresh__doc__,
+    "refresh()\n"
+    "\n"
+    "Refresh every ODB backend.\n");
+
+
+PyObject *
+Odb_refresh(Odb *self, PyObject *args)
+{
+    int err = git_odb_refresh(self->odb);
+    if (err != 0)
+        return Error_set(err);
+
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(Odb_set_lookup_flags__doc__,
+    "set_lookup_flags(flags)\n"
+    "\n"
+    "Set the lookup flags used for every lookup / read operation.\n");
+
+
+PyObject *
+Odb_set_lookup_flags(Odb *self, PyObject *args)
+{
+    unsigned int flags;
+    int err;
+    if (!PyArg_ParseTuple(args, "I", &flags))
+        return NULL;
+
+    err = git_odb_set_lookup_flags(self->odb, flags);
+    if (err != 0)
+        return Error_set(err);
+
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(Odb_lookup_flags__doc__,
+    "lookup_flags()\n"
+    "\n"
+    "Get the lookup flags used for every lookup / read operation.\n");
+PyObject *
+Odb_lookup_flags(Odb *self, PyObject *args)
+{
+    unsigned int flags;
+    int err;
+
+    err = git_odb_get_lookup_flags(self->odb, &flags);
+    if (err != 0)
+        return Error_set(err);
+
+    return PyLong_FromUnsignedLong(flags);
+}
+
+
 PyMethodDef Odb_methods[] = {
     METHOD(Odb, add_disk_alternate, METH_O),
     METHOD(Odb, read, METH_O),
     METHOD(Odb, write, METH_VARARGS),
     METHOD(Odb, exists, METH_O),
     METHOD(Odb, add_backend, METH_VARARGS),
+    METHOD(Odb, refresh, METH_NOARGS),
+    METHOD(Odb, set_lookup_flags, METH_VARARGS),
+    METHOD(Odb, lookup_flags, METH_NOARGS),
     {NULL}
 };
 

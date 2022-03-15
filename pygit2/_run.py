@@ -56,6 +56,7 @@ h_files = [
     'types.h',
     'attr.h',
     'oid.h',
+    'odb.h',
     'blame.h',
     'buffer.h',
     'strarray.h',
