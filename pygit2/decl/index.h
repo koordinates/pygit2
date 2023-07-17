@@ -38,6 +38,7 @@ size_t git_index_entrycount(const git_index *index);
 int git_index_find(size_t *at_pos, git_index *index, const char *path);
 int git_index_add_bypath(git_index *index, const char *path);
 int git_index_add(git_index *index, const git_index_entry *source_entry);
+int git_index_add_entry_with_custom_stat(git_index *index, const git_index_entry *source_entry, const char *path_for_stat);
 int git_index_remove(git_index *index, const char *path, int stage);
 int git_index_read_tree(git_index *index, const git_tree *tree);
 int git_index_clear(git_index *index);

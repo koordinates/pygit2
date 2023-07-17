@@ -23,6 +23,7 @@
 # the Free Software Foundation, 51 Franklin Street, Fifth Floor,
 # Boston, MA 02110-1301, USA.
 
+import os
 import weakref
 
 # Import from pygit2
@@ -214,6 +215,28 @@ class Index:
         else:
             raise TypeError('argument must be string or IndexEntry')
 
+        check_error(err, io=True)
+
+    def add_entry_with_custom_stat(self, entry, path_for_stat):
+        """
+        Add or update an an entry in the Index from the given IndexEntry,
+        but then populate the stat part of the indexentry by reading the stat
+        from the file at the given path.
+        Relative paths are not resolved with respect to any git repository, but simply to the cwd.
+
+        Advanced users only: generally, Index.add(path_or_entry) is what you want.
+        """
+        if not isinstance(entry, IndexEntry):
+            raise TypeError('entry must be IndexEntry')
+        if not isinstance(path_for_stat, str) and not hasattr(
+            path_for_stat, '__fspath__'
+        ):
+            raise TypeError('path_for_stat must be a filesystem path IndexEntry')
+        if not os.path.exists(path_for_stat):
+            raise ValueError('path_for_stat does not exist')
+
+        centry, str_ref = entry._to_c()
+        err = C.git_index_add_entry_with_custom_stat(self._index, centry, to_bytes(path_for_stat))
         check_error(err, io=True)
 
     def diff_to_workdir(self, flags=0, context_lines=3, interhunk_lines=0):
